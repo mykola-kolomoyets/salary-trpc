@@ -1,0 +1,60 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Employee {
+    id           Int        @id @default(autoincrement())
+    first_name   String
+    last_name    String
+    departmentId Int
+    occupationId Int
+    level        Int
+    department   Department @relation(fields: [departmentId], references: [id])
+    occupation   Occupation @relation(fields: [occupationId], references: [id])
+    Timeline     Timeline[]
+
+    @@unique([first_name, last_name, departmentId])
+}
+
+model Department {
+    id         Int          @id @default(autoincrement())
+    name       String       @unique
+    Employee   Employee[]
+    Occupation Occupation[]
+}
+
+model Occupation {
+    id           Int        @id @default(autoincrement())
+    name         String
+    Employee     Employee[]
+    Rate         Rate[]
+    department   Department @relation(fields: [departmentId], references: [id])
+    departmentId Int
+
+    @@unique([name, departmentId])
+}
+
+model Rate {
+    id           Int        @id @default(autoincrement())
+    level        Int
+    rate         Float
+    occupation   Occupation @relation(fields: [occupationId], references: [id])
+    occupationId Int
+
+    @@unique([level, occupationId])
+}
+
+model Timeline {
+    id           Int      @id @default(autoincrement())
+    month        Int
+    worked_hours Float
+    employee     Employee @relation(fields: [employeeId], references: [id])
+    employeeId   Int
+
+    @@unique([employeeId, month])
+}
